@@ -12,10 +12,12 @@ All case data and financial outcomes are synthetic. They do not describe Beeline
 
 - Historical transitions rank hypotheses and provide an initial estimate; their frequencies are not treated as measured audience conversion probabilities.
 - Up to 16 initial push pilots cover promising current-tariff × ARPU cells. Follow-up pilots test alternatives or confirm uncertain and unexpectedly strong results.
-- Pilot observations update estimates and reduce reliance on conflicting history. Widespread negative observations can stop further exploration.
+- Pilot size is chosen from 50–200 contacts using observed lift, uncertainty, and the value of additional evidence. Positive pilots retain larger samples because pilots themselves contribute to the score; negative evidence can reduce exposure. Audience and resource caps can reduce the actual size further, with a minimum of 10.
+- Each successful pilot recalibrates reliance on history. Conflicting observations across at least three cells can trigger a limited search of historically weak alternatives, including previously untested cells. Negative history is never inverted into an assumed positive final effect.
+- Early stopping uses negative observations weighted by actual contact counts. At most two new history-challenge hypotheses are attempted without a repeatedly confirmed positive alternative; repeat pilots remain possible within the total pilot budget.
 - Allocation accounts for channel costs, conversion saturation, audience ordering, budget, contact limits, and campaign slots. Selected final campaigns do not repeat contacts with each other.
 - The fallback retains a tested audience and reduces exposure where possible; profitability is not guaranteed.
-- `Agent.decision_trace` stores observations, estimates, reasons, and warnings in memory. This four-file package does not include a report exporter or viewer.
+- `Agent.decision_trace` stores observations, estimates, requested and actual pilot sizes, size-selection reasons, history calibration, and warnings in memory. This four-file package does not include a report exporter or viewer.
 
 ## 3. Main workflow and case limits
 
@@ -36,7 +38,7 @@ Push pilots have no monetary contact cost, but consume contacts and can reduce r
 
 ## 4. Technology and AI use
 
-The package was verified with **Python 3.13.11, pandas 3.0.6, and NumPy 2.5.3**. Direct dependencies are pinned in `requirements.txt`.
+The updated package was verified on Windows with **Python 3.13.3, pandas 3.0.6, and NumPy 2.5.3**. Direct dependencies are pinned in `requirements.txt`.
 
 The selector needs no network access, API key, or language model at runtime. It makes sequential decisions through the public environment interface. AI coding assistants supported development. The Beeline participant guide describes an LLM in the decision loop as optional; no live LLM integration is claimed here.
 
@@ -53,9 +55,9 @@ This branch contains the **minimal submission package**:
 | `requirements.txt` | Pinned Python dependencies |
 | `README.md` | Setup, verification, results, and limitations |
 
-Inside `agent.py`, `build_prior` prepares history; `_candidates` proposes targets; `_explore` runs pilots; `_estimate` aggregates evidence; `_offers` and `_allocate` compare feasible plans; `_fallback` handles cases without a suitable regular plan.
+Inside `agent.py`, `build_prior` prepares history; `_candidates` proposes targets; `_pilot_size` chooses exposure; `_explore` runs pilots; `_calibrate_history` updates the historical weight; `_estimate` aggregates evidence; `_offers` and `_allocate` compare feasible plans; `_fallback` handles cases without a suitable regular plan.
 
-The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The policy and dependency pins were adopted unchanged from Adil Rakhaliyev's implementation.
+The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The adaptive policy extends Adil Rakhaliyev's submitted implementation; allocation, fallback behavior, and dependency pins are unchanged.
 
 ## 6. Installation and execution
 
@@ -108,7 +110,9 @@ Recorded seed-42 evaluation:
 | Pilots | 20 |
 | Final campaigns | 4 |
 
-The four submission files were checked in a fresh virtual environment with the unchanged organizer package. Two separate generator runs reproduced the committed CSV byte for byte on macOS. Its SHA-256 is `318ff0ec37b05076e0e6fda84888bab69fe9815bdcc0337dad65cdcd2b4f22b1`. Line endings can differ across platforms. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
+The four submission files were copied into a separate directory with the unchanged organizer assets and checked using the versions listed above. All 30 development tests passed there, including checks of organizer-file integrity, public-interface use, adaptive decisions, and the benchmark harness. Those author-written tests and the synthetic benchmark tools are not part of this minimal package.
+
+Two separate generator processes reproduced identical CSV bytes. The generated plan remains the same as the previous submission at seed 42; the adaptive behavior appears under different pilot observations. Its SHA-256 after normalizing line endings to LF is `318ff0ec37b05076e0e6fda84888bab69fe9815bdcc0337dad65cdcd2b4f22b1`. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
 
 ## 8. Data and integrations
 
@@ -116,26 +120,41 @@ The profile supplies current tariffs, ARPU and usage segments, and `predicted_ar
 
 The agent does not read `traffic.csv` or `arpu_monthly.csv` directly because derived features are already in the profile. Customer data remains in the participant package and is not published here. No web service, graphical viewer, or OpenAI post-run analyst is included.
 
-## 9. Reproducible mock results
+## 9. Results and comparison
 
 The organizer command `python -X utf8 local_eval.py --runs 10` evaluates seeds **0-9**. The current package produced the following net gains, rounded to whole conventional units:
 
 | Metric | Submitted agent |
 | --- | ---: |
-| Mean net gain | 4,911,306 |
-| Median net gain | 5,115,314 |
+| Median net gain | 5,079,841 |
 | Minimum | 3,841,132 |
-| Maximum | 5,468,676 |
+| Maximum | 5,393,947 |
 | Positive runs | 10/10 |
 
 Different seeds change pilot randomness; they do not change the mock business-effect model. These results do not establish profit under hidden judging effects.
 
+The policy was frozen before two additional comparisons against the previous submitted algorithm. Suite A uses pilot seeds 300–329 and synthetic-model seed 20260924; suite B uses pilot seeds 500–519 and model seed 20260925. Each suite has one effect model per scenario, with repeated pilot noise. The table reports median net gain computed by the organizer's scorer, including pilots and final campaigns.
+
+| Scenario | A: previous | A: adaptive | B: previous | B: adaptive |
+| --- | ---: | ---: | ---: | ---: |
+| Official mock | 4,965,396 | 4,950,250 | 4,921,984 | 4,933,396 |
+| Weak effects | 289,202 | 289,202 | 274,403 | 274,403 |
+| Reversed history | -380,967 | -223,971 | -380,050 | 2,327,452 |
+| Saturated conversion | 6,548,377 | 6,562,293 | 8,369,764 | 8,566,427 |
+| Mixed historical transfer | 1,499,618 | 4,119,049 | 1,034,304 | 947,047 |
+| Effects independent of history | 189,525 | 189,525 | 8,103,125 | 8,103,125 |
+| All effects negative | -423,337 | -358,931 | -359,672 | -323,925 |
+
+All 700 executions of these two policies returned valid plans in these normal-operation scenarios. Suite A's maximum adaptive `Agent.act` time was 0.474 seconds. Synthetic scenarios were generated for development and evaluation; they are not the hidden judging model. Their benchmark harness and raw reports are maintained outside this four-file submission, so the organizer commands above reproduce the mock results only.
+
+The gains have material tradeoffs. In suite A, the mock median fell about 0.3%; reversed history still lost money in 26/30 runs and its worst result worsened from -953,622 to -1,056,024. Positive runs with history-independent effects fell from 25/30 to 24/30. In suite B, reversed history improved to 16/20 positive runs versus 1/20, but the mixed-transfer median fell 8.4% (19 pairs tied and one lost; mean net fell about 1.3%). All-negative median losses improved in both suites, while suite B's lower tenth percentile worsened. The policy does not dominate the previous version in every scenario or tail of the distribution.
+
 ## 10. Limitations
 
 - Random seeds of one mock model test pilot noise, not transfer to a different effect model. Profit and leaderboard position are not guaranteed.
-- Candidate search keeps at most two target tariffs per audience cell, ranked using history when available. Adaptive follow-up pilots cannot expand beyond the initially explored cells. Allocation is greedy; global optimality is not established.
+- Candidate search keeps up to two leading targets plus up to two historically weak alternatives per audience cell. Coverage beyond the initial cells depends on detecting conflicting history; it is not exhaustive. Allocation is greedy; global optimality is not established.
 - The historical prior closely matches how the supplied mock computes effects. Strong mock results do not establish robustness when history is misleading or current effects change direction.
-- Follow-up choice and early stopping are adaptive. Pilot size is normally 200 and decreases with eligible audience size or remaining contacts, rather than being optimized from observed uncertainty.
+- Smaller pilots trade lower exposure for less precise evidence and potentially lower direct pilot earnings. Online calibration is a heuristic regression through the origin, not a correlation measure or proof that historical effects transfer.
 - Uncertainty estimates and risk margins are heuristic, not calibrated confidence guarantees. Historical transitions alone do not identify causal effects.
 - Pilot IDs are hidden. Final campaigns can overlap pilots, and the in-memory projected net does not subtract that overlap or represent the full realized official score.
 - A fallback can lose money. If no evidence-based feasible fallback can be formed, the agent may return an empty plan, which fails the required 1–10 campaign contract. A failed or non-finite first pilot observation can trigger this behavior; automatic retry is not implemented. The ten mock runs above completed with valid final plans.
