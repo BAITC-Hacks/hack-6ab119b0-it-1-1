@@ -335,7 +335,24 @@ class Agent:
 
     def _fallback(self, env):
         """Keep pilot provenance. This limits exposure, not the possible loss."""
-        if not self._evidence or env.remaining_contacts <= 0:
+        if env.remaining_contacts <= 0:
+            self.decision_trace["warnings"].append("no_feasible_evidence_based_fallback")
+            return []
+        if not self._evidence:
+            # The case requires 1-10 campaigns even with no usable pilot evidence:
+            # minimal-exposure push probe on the smallest cell bounds the loss.
+            try:
+                cells = self._profile.groupby(["current_tariff", "arpu_segment"], observed=True).size()
+                cells = cells[cells > 0].sort_values(kind="stable")
+                current, segment = cells.index[0]
+                known = sorted(t for t in env.tariffs["tariff_plan_code"].dropna().unique() if t != current)
+                if known:
+                    self.decision_trace["warnings"].append("no_pilot_evidence_minimal_exposure_plan")
+                    return [{"campaign_name": "fallback_minimal_exposure",
+                             "filter_current_tariff": str(current), "filter_arpu_segment": str(segment),
+                             "target_tariff": str(known[0]), "channel": "push"}]
+            except Exception:
+                pass
             self.decision_trace["warnings"].append("no_feasible_evidence_based_fallback")
             return []
         try:
