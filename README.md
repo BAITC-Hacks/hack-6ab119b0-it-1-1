@@ -82,7 +82,7 @@ python -X utf8 make_submission.py
 
 The existing **14 tests** cover contact allocation, limits, final-contact overlap, deterministic replay, repeated pilots, negative evidence, small audiences, missing history, fallback filters, and organizer-file integrity. They also check agent imports and prohibited environment access.
 
-The recorded official local evaluation at **seed 42** passed: **4,941,070 net gain**, **97,064 cost**, **11,778 total contacts**, **20 pilots**, and **4 final campaigns**. The evaluator's combined campaign count includes pilots. Repeated generation of `submission.csv` at seed 42 produced identical bytes; other seeds can produce different plans.
+The recorded official local evaluation at **seed 42** passed: **4,869,704 net gain**, **93,440 cost**, **9,594 total contacts**, **20 pilots**, and **4 final campaigns**. The evaluator's combined campaign count includes pilots. Repeated generation of `submission.csv` at seed 42 produced identical bytes; other seeds can produce different plans.
 
 ## 8. Data and integrations
 
@@ -96,22 +96,22 @@ The final holdout comparison used **seeds 200–219**, selected after developmen
 
 | Metric | Claude baseline | Current adaptive agent |
 | --- | ---: | ---: |
-| Median net gain, 20 runs | 4,513,807 | **4,897,756** |
-| Minimum | **4,131,959** | 3,135,746 |
-| Maximum | 4,708,707 | **5,415,687** |
+| Median net gain, 20 runs | 4,513,807 | **4,970,133** |
+| Minimum | 4,131,959 | **4,710,488** |
+| Maximum | 4,708,707 | **5,249,831** |
 | Positive runs | 20/20 | 20/20 |
 | Invalid plans | 0 | 0 |
 | Mean repeated final contacts | 1,280.6 | **0** |
 
-Median gain increased **8.5%**, with wins in **14/20 paired runs**, but the worst result deteriorated. Recorded `Agent.act` runtime stayed below 0.5 seconds on the development PC. The fixed-exploration ablation reached a higher median, **4,955,998**, than the adaptive agent's **4,897,756**; adaptive exploration is not uniformly superior.
+Median gain increased **10.1%**, with wins in **20/20 paired runs**, and the worst result improved by **14%** after shifting four pilots from fixed coverage to the adaptive loop. Recorded `Agent.act` runtime stayed below 0.5 seconds on the development PC. The fixed-exploration ablation's median, **4,955,998**, is slightly below the adaptive agent's **4,970,133**, and its minimum, 3,286,359, is far worse.
 
 Additional authored stress scenarios used 10 seeds each:
 
 | Scenario | Claude median | Adaptive median | Adaptive positive runs |
 | --- | ---: | ---: | ---: |
-| Weak effects | **611,911** | 311,590 | 10/10 |
+| Weak effects | **611,911** | 352,225 | 10/10 |
 | History points in the opposite direction | −983,819 | **−238,783** | 0/10 |
-| Near-saturated conversion | 6,342,820 | **6,625,070** | 10/10 |
+| Near-saturated conversion | 6,342,820 | **6,433,849** | 10/10 |
 
 Conservatism costs profit under weak effects. Stopping exploration reduces losses under reversed history, but cannot undo harmful pilots. These fixtures are diagnostics, not the judges' hidden model.
 
