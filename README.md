@@ -1,54 +1,69 @@
-# Tariff Campaign Planning Agent
+# Beeline Tariff Marketing Campaigns Agent
 
-**It 1+1** · HackAlem AI · Track 04, Telecommunications · Beeline case.
+**It 1+1** · HackAlem AI · Track 04, Telecommunications.
 
 ## 1. Problem and user
 
-A marketing analyst must choose audiences, target tariffs, and communication channels under a limited budget. A tariff change can reduce revenue, contacts have costs, and small pilots give noisy estimates. This agent uses pilot feedback to produce a feasible campaign plan.
+A marketing analyst must choose audiences, target tariffs, and communication channels within a limited budget. A tariff change can reduce revenue, contacts consume resources, and small pilots provide noisy evidence. This agent learns from pilots and returns a campaign plan.
 
-All case data and reported financial outcomes are synthetic. Results do not describe the operator's real business.
+All case data and financial outcomes are synthetic. They do not describe Beeline's real business.
 
 ## 2. Implemented solution
 
-- Historical transitions generate hypotheses; their frequencies are not treated as the audience's true conversion probabilities.
-- Up to 16 initial push pilots cover promising cells. Remaining pilots test alternatives or repeat uncertain and unexpectedly strong results.
-- Estimates combine historical signals and pilot observations. Contradictory evidence reduces reliance on history; widespread negative observations stop further exploration.
-- Audience and channel selection jointly account for budget, contacts, campaign slots, customer ordering, and conversion saturation. Final campaigns do not contact the same customer twice.
-- A fallback retains the tested audience filters and reduces exposure when positive effects are uncertain.
-- JSON and Markdown reports explain pilot choices, estimates, uncertainty, rejected options, and planned campaigns.
+- Historical transitions rank hypotheses and provide an initial estimate; their frequencies are not treated as measured audience conversion probabilities.
+- Up to 16 initial push pilots cover promising current-tariff × ARPU cells. Follow-up pilots test alternatives or confirm uncertain and unexpectedly strong results.
+- Pilot observations update estimates and reduce reliance on conflicting history. Widespread negative observations can stop further exploration.
+- Allocation accounts for channel costs, conversion saturation, audience ordering, budget, contact limits, and campaign slots. Selected final campaigns do not repeat contacts with each other.
+- The fallback retains a tested audience and reduces exposure where possible; profitability is not guaranteed.
+- `Agent.decision_trace` stores observations, estimates, reasons, and warnings in memory. This four-file package does not include a report exporter or viewer.
 
-## 3. Main workflow
+## 3. Main workflow and case limits
 
-Profile and history → candidate hypotheses → pilots → history calibration → adaptive follow-up pilots → estimated net value → constrained allocation → `submission.csv`.
+Profile and history → candidate hypotheses → pilots → history calibration → follow-up pilots → estimated net value → constrained allocation → campaign list.
 
-The case allows at most **20 pilots**, normally **10–200 contacts per pilot**, and **1–10 final campaigns**. Limits are **5,000 contacts per final campaign**, **15,000 total contacts including pilots**, and **100,000 monetary units**. Push pilots have zero contact cost but consume contacts and may lose revenue. Pilots contribute to the final score.
+The organizer's `make_submission.py` runs this workflow at seed 42 and writes `submission.csv`.
 
-## 4. Technology
+| Constraint | Limit |
+| --- | ---: |
+| Final campaigns | 1–10 |
+| Subscribers per final campaign | 5,000 |
+| Total contacts, including pilots | 15,000 |
+| Total communication cost, including pilots | 100,000 conventional units |
+| Pilots | Up to 20, with 10–200 contacts each |
+| Runtime | Up to 10 minutes in the participant guide |
 
-Python, pandas, and NumPy. The recorded validation environment was **Python 3.13.3, pandas 3.0.6, NumPy 2.5.3**; install the versions specified in `requirements.txt`.
+Push pilots have no monetary contact cost, but consume contacts and can reduce revenue. Both pilots and final campaigns contribute to the official score. Each subscriber's effect is counted once by the evaluator, while all contact costs are charged.
 
-The judged selector requires no external API, API key, or LLM call. It makes sequential decisions through the environment's public API. AI coding assistants supported development; there is no runtime language model dependency. Any future LLM explanation layer would be optional and separate from selection.
+## 4. Technology and AI use
 
-## 5. Architecture
+The tested environment is **Python 3.13.3, pandas 3.0.6, and NumPy 2.5.3**. Direct dependencies are pinned in `requirements.txt`.
 
-| Component | Responsibility |
+The selector needs no network access, API key, or language model at runtime. It makes sequential decisions through the public environment interface. AI coding assistants supported development. The Beeline participant guide describes an LLM in the decision loop as optional; no live LLM integration is claimed here.
+
+## 5. Architecture and repository contents
+
+This branch contains the **minimal submission package**:
+
+| File | Purpose |
 | --- | --- |
-| `agent.py: build_prior` | Prepare historical signals; tolerate missing or malformed history |
-| `Agent._candidates` | Select up to two target tariffs per current-tariff × ARPU cell |
-| `Agent._explore` | Initial coverage, history calibration, alternatives, and repeat pilots |
-| `Agent._estimate` | Aggregate observations and estimate approximate uncertainty |
-| `Agent._offers` / `_allocate` | Build audiences and compare six greedy allocation variants |
-| `Agent._fallback` | Return a plan restricted to a tested audience where feasible |
-| `tools/explain_plan.py` | Export explanations using public observations only |
-| `tools/benchmark_agent.py` | Paired comparisons and separate synthetic stress fixtures |
+| `agent.py` | Complete policy, including `Agent.act(env)` |
+| `submission.csv` | Four final campaigns generated at seed 42 |
+| `requirements.txt` | Pinned Python dependencies |
+| `README.md` | Setup, verification, results, and limitations |
 
-The agent uses public environment fields and `run_pilot`; it does not import the evaluator or inspect hidden effects. Organizer files `environment.py`, `scoring_core.py`, `mock_environment.py`, `local_eval.py`, `make_submission.py`, and `agent_template.py` remain unchanged. Tests verify the recorded organizer-file hashes.
+Inside `agent.py`, `build_prior` prepares history; `_candidates` proposes targets; `_explore` runs pilots; `_estimate` aggregates evidence; `_offers` and `_allocate` compare feasible plans; `_fallback` handles cases without a suitable regular plan.
+
+The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The policy and dependency pins were adopted unchanged from [Adil Rakhaliyev's development snapshot, commit 41f934a](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/tree/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4).
 
 ## 6. Installation and execution
 
-Use Python 3.13, with 3.13.3 being the tested version. First restore `customer_profile.csv` and the organizer's `data/` directory into the repository root. The directory includes `change_tariff.csv`, `dict_tariff.csv`, `traffic.csv`, and `arpu_monthly.csv`. These input files are intentionally excluded from Git; obtain them from the participant package.
+1. Obtain and extract the official Beeline participant package.
+2. Copy this branch's four files into the package root. Keep the organizer's environment, scorer, evaluator, generator, dictionaries, and data unchanged.
+3. Run the commands below **from that assembled package directory**.
 
-Windows PowerShell, from the repository root:
+The assembled directory must contain `environment.py`, `scoring_core.py`, `mock_environment.py`, `local_eval.py`, `make_submission.py`, `customer_profile.csv`, and the organizer's `data/` directory. The latter includes `change_tariff.csv`, `dict_tariff.csv`, `traffic.csv`, and `arpu_monthly.csv`. These organizer assets are supplied separately; they are not part of this four-file branch.
+
+Windows PowerShell:
 
 ```powershell
 py -3.13 -m venv .venv
@@ -66,35 +81,46 @@ python3.13 -m venv .venv
 .venv/bin/python -X utf8 make_submission.py
 ```
 
-No API keys are required. UTF-8 mode supports the organizer tools' Russian output on Windows.
+UTF-8 mode supports the organizer tools' Russian output on Windows. No API keys are required.
 
 ## 7. Validation and reproduction
 
-After installing dependencies, run these commands with the virtual environment's Python executable (`.venv\Scripts\python.exe` on Windows or `.venv/bin/python` on Linux/macOS):
+Use the organizer's unchanged tools in the assembled directory. In the commands below, `python` means the virtual environment's executable shown above:
 
 ```sh
-python -X utf8 -m unittest discover -s tests -v
-python -X utf8 tools/benchmark_agent.py --suite holdout
-python -X utf8 tools/benchmark_agent.py --suite stress
-python -X utf8 tools/explain_plan.py --seed 42
+python -X utf8 local_eval.py
+python -X utf8 local_eval.py --runs 10
 python -X utf8 make_submission.py
 ```
 
-The existing **14 tests** cover contact allocation, limits, final-contact overlap, deterministic replay, repeated pilots, negative evidence, small audiences, missing history, fallback filters, and organizer-file integrity. They also check agent imports and prohibited environment access.
+Check that evaluation completes, no campaigns are discarded, pilots are used, and resource limits hold. The reported combined campaign count includes pilots: 24 campaigns at seed 42 means 20 pilots plus 4 final campaigns, within the final-plan limit.
 
-The recorded official local evaluation at **seed 42** passed: **4,941,070 net gain**, **97,064 cost**, **11,778 total contacts**, **20 pilots**, and **4 final campaigns**. The evaluator's combined campaign count includes pilots. Repeated generation of `submission.csv` at seed 42 produced identical bytes; other seeds can produce different plans.
+Recorded seed-42 evaluation:
+
+| Metric | Result |
+| --- | ---: |
+| Status | PASS |
+| Net gain | 4,941,070 |
+| Communication cost | 97,064 / 100,000 |
+| Contacts, including pilots | 11,778 / 15,000 |
+| Pilots | 20 |
+| Final campaigns | 4 |
+
+Generation was verified in separate processes and in a clean export of the development commit using a fresh dependency environment. The submitted campaign content reproduced; repeated generation on the same platform was byte-identical. Windows/Linux line endings may differ. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
+
+The development snapshot also contains [14 unit tests](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/tests/test_agent.py), the benchmark harness, and report-generation tools. **Those files are not included in this minimal branch**; their commands require that separate snapshot and the organizer data.
 
 ## 8. Data and integrations
 
-The customer profile provides current tariff, ARPU and behavioral segments, and `predicted_arpu`. `data/change_tariff.csv` supplies initial hypotheses. `env.tariffs` and `env.channels` define valid actions. Current effects are learned only through pilot responses.
+The profile supplies current tariffs, ARPU and usage segments, and `predicted_arpu`. Historical `data/change_tariff.csv` supplies initial hypotheses. `env.tariffs` and `env.channels` define valid actions, and current effects are learned through pilot responses.
 
-`traffic.csv` and `arpu_monthly.csv` are not read directly because derived features are already available in the profile. The benchmark harness owns its evaluation models separately and never supplies hidden truth to the agent. There is no web service, live API integration, or graphical viewer in this submission.
+The agent does not read `traffic.csv` or `arpu_monthly.csv` directly because derived features are already in the profile. Customer data remains in the participant package and is not published here. No web service, graphical viewer, or OpenAI post-run analyst is included.
 
-## 9. Measured results
+## 9. Measured results and evidence
 
-The final holdout comparison used **seeds 200–219**, selected after development. Policy constants were unchanged after that evaluation. The baseline is the preserved **Claude implementation**, not the organizer's `agent_template.py`.
+The recorded development comparison used seeds **200–219** after selecting the policy. The baseline is the earlier Claude implementation, not the organizer's starter template. Policy constants were unchanged after that evaluation.
 
-| Metric | Claude baseline | Current adaptive agent |
+| Metric | Earlier Claude baseline | Submitted agent |
 | --- | ---: | ---: |
 | Median net gain, 20 runs | 4,513,807 | **4,897,756** |
 | Minimum | **4,131,959** | 3,135,746 |
@@ -103,33 +129,24 @@ The final holdout comparison used **seeds 200–219**, selected after developmen
 | Invalid plans | 0 | 0 |
 | Mean repeated final contacts | 1,280.6 | **0** |
 
-Median gain increased **8.5%**, with wins in **14/20 paired runs**, but the worst result deteriorated. Recorded `Agent.act` runtime stayed below 0.5 seconds on the development PC. The fixed-exploration ablation reached a higher median, **4,955,998**, than the adaptive agent's **4,897,756**; adaptive exploration is not uniformly superior.
+Median gain increased 8.5%, with wins in 14/20 paired runs, but the worst result deteriorated. A fixed-exploration ablation reached a higher median of 4,955,998, so the improvement cannot be attributed to adaptive exploration alone. Original holdout measurements of `Agent.act` stayed below 0.5 seconds on the development PC; runtime depends on the environment.
 
-Additional authored stress scenarios used 10 seeds each:
+Authored stress fixtures also expose limitations: submitted-agent medians were 311,590 with weak effects, −238,783 with reversed historical signals, and 6,625,070 near conversion saturation. The reversed-history fixture lost money in all ten runs. These are diagnostic simulations, not the hidden judging model or real operator revenue.
 
-| Scenario | Claude median | Adaptive median | Adaptive positive runs |
-| --- | ---: | ---: | ---: |
-| Weak effects | **611,911** | 311,590 | 10/10 |
-| History points in the opposite direction | −983,819 | **−238,783** | 0/10 |
-| Near-saturated conversion | 6,342,820 | **6,625,070** | 10/10 |
-
-Conservatism costs profit under weak effects. Stopping exploration reduces losses under reversed history, but cannot undo harmful pilots. These fixtures are diagnostics, not the judges' hidden model.
-
-Full measurements and code hashes: [holdout report](reports/benchmark_holdout.json) and [stress report](reports/benchmark_stress.json). Further explanation, in Russian: [change notes](docs/IMPROVEMENTS.md), [decision report](reports/decision_report.md), and [industry research](docs/INDUSTRY_RESEARCH.md).
+Evidence is available in the separate pinned development snapshot: [holdout results](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/reports/benchmark_holdout.json), [stress results](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/reports/benchmark_stress.json), [baseline](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/tree/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/tests/baselines), and [change notes](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/docs/IMPROVEMENTS.md).
 
 ## 10. Limitations
 
-- Different seeds of one mock model test pilot noise, not generalization to a different business environment. Hidden evaluation outcomes may differ.
-- Candidate selection and greedy allocation restrict the search; global optimality is not guaranteed. Excluding all final-contact overlap can also discard useful partially overlapping campaigns.
-- Uncertainty estimates and risk margins are heuristic, not calibrated confidence guarantees. Historical transitions do not identify causal effects by themselves.
-- Pilot sample IDs are hidden. Final campaigns may overlap pilots, and the reported projected net does not subtract those overlaps.
-- A required nonempty fallback may still lose money. If evidence or limits make a plan infeasible, the agent returns an empty plan with a warning; that output is not a valid submission.
-- Reports are lightweight explanation artifacts, not a versioned run-log API. The JSON does not contain an attached official evaluation, and fallback campaigns are not fully represented in its campaign trace.
-
-The original Claude code, CSV, and README are retained in `tests/baselines/` for reproducible comparisons.
+- Random seeds of one mock model test pilot noise, not transfer to a different effect model. Profit and leaderboard position are not guaranteed.
+- Candidate search is restricted and allocation is greedy; global optimality is not established.
+- Follow-up choice and early stopping are adaptive. Pilot size is normally 200 and decreases with eligible audience size or remaining contacts, rather than being optimized from observed uncertainty.
+- Uncertainty estimates and risk margins are heuristic, not calibrated confidence guarantees. Historical transitions alone do not identify causal effects.
+- Pilot IDs are hidden. Final campaigns can overlap pilots, and the in-memory projected net does not subtract that overlap or represent the full realized official score.
+- A fallback can lose money. If no evidence-based feasible fallback can be formed, the agent may return an empty plan, which fails the required 1–10 campaign contract. No such invalid plan occurred in the recorded benchmark series.
+- The trace is not a complete reporting API: it has no attached official evaluation, and fallback campaigns are not fully represented in its campaign list.
 
 ## 11. Deployment and submission
 
-Required submission artifacts are in the repository root: **`agent.py`, `submission.csv`, and `requirements.txt`**. Organizer runtime files support local execution; restore the participant data separately as described above. Reports, tools, and tests document and verify the solution.
+This is an offline submission; no deployed URL is required. Submit `agent.py`, its generated `submission.csv`, and `requirements.txt` with this README, following the case's platform instructions. Use the separately supplied participant package for local evaluation.
 
-Submit through the selected case's button on the hackathon platform. Generating a CSV or pushing a Git branch does not itself submit the solution to the platform.
+Pushing a Git commit or generating a CSV does not itself complete the platform's **Submit Solution** step.
