@@ -373,7 +373,12 @@ class Agent:
                 cells = self._profile.groupby(["current_tariff", "arpu_segment"], observed=True).size()
                 cells = cells[cells > 0].sort_values(kind="stable")
                 current, segment = cells.index[0]
-                known = sorted(t for t in env.tariffs["tariff_plan_code"].dropna().unique() if t != current)
+                try:
+                    prices = env.tariffs.set_index("tariff_plan_code")["price_tariff"]
+                    known = [t for t in prices.sort_values(ascending=False).index if t != current]
+                except (KeyError, ValueError):
+                    known = sorted(t for t in env.tariffs["tariff_plan_code"].dropna().unique()
+                                   if t != current)
                 if known:
                     self.decision_trace["warnings"].append("no_pilot_evidence_minimal_exposure_plan")
                     return [{"campaign_name": "fallback_minimal_exposure",
