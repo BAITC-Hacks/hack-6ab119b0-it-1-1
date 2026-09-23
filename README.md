@@ -11,15 +11,15 @@ All case data and financial outcomes are synthetic. They do not describe Beeline
 ## 2. Implemented solution
 
 - Historical transitions rank hypotheses and provide an initial estimate; their frequencies are not treated as measured audience conversion probabilities.
-- Up to 16 initial push pilots cover promising current-tariff × ARPU cells. Follow-up pilots test alternatives or confirm uncertain and unexpectedly strong results.
+- Up to 12 initial push pilots cover promising current-tariff × ARPU cells. An OpenAI model then reviews the live evidence and proposes up to 2 extra hypothesis pilots; remaining pilots test alternatives or confirm uncertain and unexpectedly strong results.
 - Pilot observations update estimates and reduce reliance on conflicting history. Widespread negative observations can stop further exploration.
 - Allocation accounts for channel costs, conversion saturation, audience ordering, budget, contact limits, and campaign slots. Selected final campaigns do not repeat contacts with each other.
-- The fallback retains a tested audience and reduces exposure where possible; profitability is not guaranteed.
-- `Agent.decision_trace` stores observations, estimates, reasons, and warnings in memory. This four-file package does not include a report exporter or viewer.
+- The fallback retains a tested audience and reduces exposure where possible. With no usable pilot evidence at all, it still returns one minimal-exposure campaign toward the highest-price tariff, keeping the required 1–10 campaign contract; fallback profitability is not guaranteed.
+- `Agent.decision_trace` stores observations, estimates, LLM advice, reasons, and warnings in memory. This six-file package does not include a report exporter or viewer.
 
 ## 3. Main workflow and case limits
 
-Profile and history → candidate hypotheses → pilots → history calibration → follow-up pilots → estimated net value → constrained allocation → campaign list.
+Profile and history → candidate hypotheses → first-pass pilots → history calibration → LLM-suggested hypothesis pilots → adaptive follow-up pilots → estimated net value → constrained allocation → campaign list.
 
 The organizer's `make_submission.py` runs this workflow at seed 42 and writes `submission.csv`.
 
@@ -36,11 +36,11 @@ Push pilots have no monetary contact cost, but consume contacts and can reduce r
 
 ## 4. Technology and AI use
 
-The package was verified with **Python 3.13.11, pandas 3.0.6, and NumPy 2.5.3**. Direct dependencies are pinned in `requirements.txt`.
+The package was verified with **pandas 3.0.6 and NumPy 2.5.3**; an external review reproduced identical seed-42 results on pandas 2.3.3. `requirements.txt` therefore allows `pandas>=2.2` and `numpy>=1.26`, so the judges' Python version can install available wheels.
 
-The selector needs no network access, API key, or language model at runtime. It makes sequential decisions through the public environment interface. AI coding assistants supported development. The Beeline participant guide describes an LLM in the decision loop as optional; no live LLM integration is claimed here.
+An OpenAI model participates in the decision loop (`llm_advisor.py`). After the deterministic first-pass pilots it receives the candidate cells with their live evidence (posterior mean, standard deviation, sample size) and the resource state, and proposes up to 2 additional hypothesis pilots from the adaptive reserve. Its suggestions then compete on measured pilot evidence like any other cell; it never edits the final campaign list directly. The key comes only from `os.environ["OPENAI_API_KEY"]`; every call is wrapped in try/except with a 20-second timeout, and any error, missing key, or invalid response falls back to the fully deterministic policy, so a model outage cannot invalidate the plan. A committed `llm_cache.json`, keyed by the exact request payload and independent of the model name, makes the seed-42 replay byte-reproducible with or without a key; on the judging environment's different effects the cache misses and the model is consulted live. A paired 7-seed live comparison measured a +39k mean mock effect from this step, with individual seeds and model draws varying in both directions.
 
-The event-wide rules separately require OpenAI API use. This offline package contains no OpenAI API integration and does not by itself demonstrate fulfillment of that requirement.
+This package demonstrates the event-wide OpenAI API requirement inside the judged agent itself.
 
 ## 5. Architecture and repository contents
 
@@ -49,21 +49,24 @@ This branch contains the **minimal submission package**:
 | File | Purpose |
 | --- | --- |
 | `agent.py` | Complete policy, including `Agent.act(env)` |
+| `llm_advisor.py` | LLM hypothesis-pilot advisor: prompt, validation, cache, deterministic fallback |
+| `llm_cache.json` | Committed LLM responses pinning the seed-42 replay |
 | `submission.csv` | Four final campaigns generated at seed 42 |
-| `requirements.txt` | Pinned Python dependencies |
+| `requirements.txt` | Python dependencies |
 | `README.md` | Setup, verification, results, and limitations |
 
-Inside `agent.py`, `build_prior` prepares history; `_candidates` proposes targets; `_explore` runs pilots; `_estimate` aggregates evidence; `_offers` and `_allocate` compare feasible plans; `_fallback` handles cases without a suitable regular plan.
+Inside `agent.py`, `build_prior` prepares history; `_candidates` proposes targets; `_explore` runs pilots and consults the LLM advisor; `_estimate` aggregates evidence; `_offers` and `_allocate` compare feasible plans; `_fallback` handles cases without a suitable regular plan.
 
-The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The policy and dependency pins were adopted unchanged from Adil Rakhaliyev's implementation.
+The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The core policy was adopted from Adil Rakhaliyev's implementation; subsequent measured changes (pilot-budget shift 16→12, price-aware emergency fallback, LLM hypothesis pilots) are recorded in the branch history.
 
 ## 6. Installation and execution
 
 1. Obtain and extract the official Beeline participant package.
-2. Copy this branch's four files into the package root. Keep the organizer's environment, scorer, evaluator, generator, dictionaries, and data unchanged.
-3. Run the commands below **from that assembled package directory**.
+2. Copy this branch's six files into the package root. Keep the organizer's environment, scorer, evaluator, generator, dictionaries, and data unchanged.
+3. Optionally set `OPENAI_API_KEY` in the environment to enable the live LLM step; without it the agent runs fully deterministically. No key is needed to reproduce `submission.csv` - the committed cache answers the seed-42 request.
+4. Run the commands below **from that assembled package directory**.
 
-The assembled directory must contain `environment.py`, `scoring_core.py`, `mock_environment.py`, `local_eval.py`, `make_submission.py`, `customer_profile.csv`, and the organizer's `data/` directory. The latter includes `change_tariff.csv`, `dict_tariff.csv`, `traffic.csv`, and `arpu_monthly.csv`. These organizer assets are supplied separately; they are not part of this four-file branch.
+The assembled directory must contain `environment.py`, `scoring_core.py`, `mock_environment.py`, `local_eval.py`, `make_submission.py`, `customer_profile.csv`, and the organizer's `data/` directory. The latter includes `change_tariff.csv`, `dict_tariff.csv`, `traffic.csv`, and `arpu_monthly.csv`. These organizer assets are supplied separately; they are not part of this six-file branch.
 
 Windows PowerShell:
 
@@ -77,13 +80,13 @@ py -3.13 -m venv .venv
 Linux/macOS:
 
 ```sh
-python3.13 -m venv .venv
+python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -X utf8 local_eval.py
 .venv/bin/python -X utf8 make_submission.py
 ```
 
-UTF-8 mode supports the organizer tools' Russian output on Windows. No API keys are required.
+UTF-8 mode supports the organizer tools' Russian output on Windows.
 
 ## 7. Validation and reproduction
 
@@ -102,47 +105,48 @@ Recorded seed-42 evaluation:
 | Metric | Result |
 | --- | ---: |
 | Status | PASS |
-| Net gain | 4,941,070 |
-| Communication cost | 97,064 / 100,000 |
-| Contacts, including pilots | 11,778 / 15,000 |
+| Net gain | 4,869,704 |
+| Communication cost | 93,440 / 100,000 |
+| Contacts, including pilots | 9,594 / 15,000 |
 | Pilots | 20 |
 | Final campaigns | 4 |
 
-The four submission files were checked in a fresh virtual environment with the unchanged organizer package. Two separate generator runs reproduced the committed CSV byte for byte on macOS. Its SHA-256 is `318ff0ec37b05076e0e6fda84888bab69fe9815bdcc0337dad65cdcd2b4f22b1`. Line endings can differ across platforms. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
+In the recorded run the LLM's suggested pilots confirmed cells the adaptive loop also prioritizes, so the final plan matches the deterministic one - live model advice varies and can also add campaigns. Replay reproducibility (cache answers seed 42 without network) is verified separately from live integration (fresh seeds make real API calls, e.g. seed 999: net 5,144,353 PASS in `llm_live` mode). Generator runs live, cache-only, and keyless reproduced the committed CSV byte for byte. Its SHA-256 is `95bbd022ca3c51f634540c8a2cd23e28d17600ffa04cc9782026a0a329ea96a7`. Line endings can differ across platforms. Hidden-environment campaigns may differ from seed 42 because pilot outcomes and live model advice differ.
 
 ## 8. Data and integrations
 
 The profile supplies current tariffs, ARPU and usage segments, and `predicted_arpu`. Historical `data/change_tariff.csv` supplies initial hypotheses. `env.tariffs` and `env.channels` define valid actions, and current effects are learned through pilot responses.
 
-The agent does not read `traffic.csv` or `arpu_monthly.csv` directly because derived features are already in the profile. Customer data remains in the participant package and is not published here. No web service, graphical viewer, or OpenAI post-run analyst is included.
+The agent does not read `traffic.csv` or `arpu_monthly.csv` directly because derived features are already in the profile. Customer data remains in the participant package and is not published here. The OpenAI API (via `llm_advisor.py`) is the only external integration; there is no web service or graphical viewer in this package.
 
 ## 9. Reproducible mock results
 
-The organizer command `python -X utf8 local_eval.py --runs 10` evaluates seeds **0-9**. The current package produced the following net gains, rounded to whole conventional units:
+The organizer command `python -X utf8 local_eval.py --runs 10` evaluates seeds **0-9**. Without an API key the current package produced the following net gains, rounded to whole conventional units:
 
-| Metric | Submitted agent |
+| Metric | Submitted agent (deterministic path) |
 | --- | ---: |
-| Mean net gain | 4,911,306 |
-| Median net gain | 5,115,314 |
-| Minimum | 3,841,132 |
-| Maximum | 5,468,676 |
+| Mean net gain | 4,997,973 |
+| Median net gain | 5,025,029 |
+| Minimum | 4,646,599 |
+| Maximum | 5,245,303 |
 | Positive runs | 10/10 |
 
-Different seeds change pilot randomness; they do not change the mock business-effect model. These results do not establish profit under hidden judging effects.
+With a key set, the LLM step alters exploration per run; the paired 7-seed comparison above measured a +39k mean effect with per-seed deltas from -164k to +353k. Different seeds change pilot randomness; they do not change the mock business-effect model. These results do not establish profit under hidden judging effects.
 
 ## 10. Limitations
 
 - Random seeds of one mock model test pilot noise, not transfer to a different effect model. Profit and leaderboard position are not guaranteed.
-- Candidate search keeps at most two target tariffs per audience cell, ranked using history when available. Adaptive follow-up pilots cannot expand beyond the initially explored cells. Allocation is greedy; global optimality is not established.
+- Candidate search keeps at most two target tariffs per audience cell, ranked using history when available. Adaptive follow-up and LLM suggestions choose among the precomputed candidate list; cells outside it are never piloted. Allocation is greedy; global optimality is not established.
 - The historical prior closely matches how the supplied mock computes effects. Strong mock results do not establish robustness when history is misleading or current effects change direction.
 - Follow-up choice and early stopping are adaptive. Pilot size is normally 200 and decreases with eligible audience size or remaining contacts, rather than being optimized from observed uncertainty.
 - Uncertainty estimates and risk margins are heuristic, not calibrated confidence guarantees. Historical transitions alone do not identify causal effects.
 - Pilot IDs are hidden. Final campaigns can overlap pilots, and the in-memory projected net does not subtract that overlap or represent the full realized official score.
-- A fallback can lose money. If no evidence-based feasible fallback can be formed, the agent may return an empty plan, which fails the required 1–10 campaign contract. A failed or non-finite first pilot observation can trigger this behavior; automatic retry is not implemented. The ten mock runs above completed with valid final plans.
+- The emergency fallback (used only when every pilot observation fails) targets the highest-price tariff with the smallest audience; it bounds exposure but can still lose money.
+- LLM responses vary between live calls; the committed cache pins the recorded seed-42 run, and off-cache runs, including judging, can take different exploration paths.
 - The trace is not a complete reporting API: it has no attached official evaluation, and fallback campaigns are not fully represented in its campaign list.
 
 ## 11. Deployment and submission
 
-This is an offline submission; no deployed URL is required. Submit `agent.py`, its generated `submission.csv`, and `requirements.txt` with this README, following the case's platform instructions. Use the separately supplied participant package for local evaluation.
+This is an offline submission; no deployed URL is required. Submit `agent.py`, `llm_advisor.py`, `llm_cache.json`, the generated `submission.csv`, and `requirements.txt` with this README, following the case's platform instructions. Use the separately supplied participant package for local evaluation.
 
 Pushing a Git commit or generating a CSV does not itself complete the platform's **Submit Solution** step.
