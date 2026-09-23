@@ -1,0 +1,23 @@
+# Секреты — в репозиторий не попадают никогда
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Данные кейса: выдаются организаторами в пакете участника, в репозиторий не коммитятся
+data/
+customer_profile.csv
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Окружение разработчика
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

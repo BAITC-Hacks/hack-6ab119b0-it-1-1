@@ -1,0 +1,482 @@
+{
+  "policy": "adaptive-pilots/contact-aware-allocation",
+  "pilots": [
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.060993547132313274,
+      "posterior_mean": 0.07515324834127168,
+      "posterior_sd": 0.049578533948284466,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_13",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.17086634308572485,
+      "posterior_mean": 0.16044514889294065,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_10",
+      "n": 200,
+      "observed_lift": -0.06255520245320648,
+      "posterior_mean": -0.04648119137772498,
+      "posterior_sd": 0.05257088532379447,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "n": 200,
+      "observed_lift": 0.16748477958855634,
+      "posterior_mean": 0.18294115791292587,
+      "posterior_sd": 0.050569512120113964,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_13",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.2690247402864962,
+      "posterior_mean": 0.2734162656585097,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_12",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.13782374985818996,
+      "posterior_mean": 0.13805706033326698,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "n": 200,
+      "observed_lift": 0.2591284646688858,
+      "posterior_mean": 0.24691664180818879,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_14",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "n": 200,
+      "observed_lift": 0.2866602997430299,
+      "posterior_mean": 0.2758594364144345,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.20572707211145935,
+      "posterior_mean": 0.19104430432259303,
+      "posterior_sd": 0.049915608365157765,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_12",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.17259969261586855,
+      "posterior_mean": 0.16610759070467923,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "n": 200,
+      "observed_lift": 0.07029561611496007,
+      "posterior_mean": 0.0651749319836815,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "n": 200,
+      "observed_lift": 0.07485699329461479,
+      "posterior_mean": 0.08817258509746681,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_10",
+      "n": 200,
+      "observed_lift": 0.00037717016721161307,
+      "posterior_mean": 0.0010704699001546493,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_12",
+      "n": 200,
+      "observed_lift": -0.0021709957404087692,
+      "posterior_mean": 0.00039610868984264606,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.11745064461311044,
+      "posterior_mean": 0.10230368958973435,
+      "posterior_sd": 0.05027630439603994,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_14",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_9",
+      "n": 200,
+      "observed_lift": 0.017834283159122215,
+      "posterior_mean": 0.01998016786174939,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "initial_coverage"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_11",
+      "n": 200,
+      "observed_lift": -0.01805127978929249,
+      "posterior_mean": -0.013161352060562707,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "test_alternative"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "n": 200,
+      "observed_lift": 0.0459070616514535,
+      "posterior_mean": 0.038515112082643826,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "test_alternative"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_10",
+      "n": 200,
+      "observed_lift": 0.026679948054020453,
+      "posterior_mean": 0.012093795471461995,
+      "posterior_sd": 0.03729898413605785,
+      "reason": "confirm_uncertain_choice"
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_11",
+      "n": 200,
+      "observed_lift": 0.02646077113140163,
+      "posterior_mean": 0.003893566479647353,
+      "posterior_sd": 0.03729898413605785,
+      "reason": "confirm_uncertain_choice"
+    }
+  ],
+  "estimates": [
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "prior": 0.12011808416576368,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.07515324834127168,
+      "sd": 0.049578533948284466
+    },
+    {
+      "current_tariff": "tariff_13",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "prior": 0.12820215307357918,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.16044514889294065,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_10",
+      "prior": 0.04836385061014201,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": -0.04648119137772498,
+      "sd": 0.05257088532379447
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "prior": 0.24151548834236602,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.18294115791292587,
+      "sd": 0.050569512120113964
+    },
+    {
+      "current_tariff": "tariff_13",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_8",
+      "prior": 0.2870035697228074,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.2734162656585097,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_12",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "prior": 0.13877891893539643,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.13805706033326698,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "prior": 0.20913347164935306,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.24691664180818879,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_14",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "prior": 0.2424417508107508,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.2758594364144345,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_8",
+      "prior": 0.14164184803246696,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.19104430432259303,
+      "sd": 0.049915608365157765
+    },
+    {
+      "current_tariff": "tariff_12",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_8",
+      "prior": 0.14602113891144,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.16610759070467923,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "prior": 0.04933162324355573,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.0651749319836815,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_9",
+      "prior": 0.12937079740301627,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.08817258509746681,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_10",
+      "prior": 0.003215527364521362,
+      "sample_n": 400,
+      "repeats": 2,
+      "mean": 0.012093795471461995,
+      "sd": 0.03729898413605785
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_12",
+      "prior": 0.008338685699852966,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.00039610868984264606,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "prior": 0.04794747603618461,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.10230368958973435,
+      "sd": 0.05027630439603994
+    },
+    {
+      "current_tariff": "tariff_14",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_9",
+      "prior": 0.026619498270115456,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.01998016786174939,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_11",
+      "prior": 0.0019680003339627343,
+      "sample_n": 400,
+      "repeats": 2,
+      "mean": 0.003893566479647353,
+      "sd": 0.03729898413605785
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "prior": 0.01564454709412355,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.038515112082643826,
+      "sd": 0.0494227596767711
+    }
+  ],
+  "campaigns": [
+    {
+      "campaign_name": "plan_1_digital_ads_tariff_8",
+      "filter_arpu_segment": "MID",
+      "filter_current_tariff": "tariff_11;tariff_12;tariff_13;tariff_4",
+      "target_tariff": "tariff_8",
+      "channel": "digital_ads",
+      "planned_contacts": 3055,
+      "planned_cost": 67210.0,
+      "estimated_net": 2146442.645215534,
+      "reason": "positive_incremental_net_no_final_overlap",
+      "capped_by_remaining_resources": false
+    },
+    {
+      "campaign_name": "plan_2_digital_ads_tariff_9",
+      "filter_arpu_segment": "LOW",
+      "filter_current_tariff": "tariff_10;tariff_14;tariff_4;tariff_8",
+      "target_tariff": "tariff_9",
+      "channel": "digital_ads",
+      "planned_contacts": 1357,
+      "planned_cost": 29854.0,
+      "estimated_net": 1058938.241608389,
+      "reason": "positive_incremental_net_no_final_overlap",
+      "capped_by_remaining_resources": false
+    },
+    {
+      "campaign_name": "plan_3_push_tariff_8",
+      "filter_arpu_segment": "LOW",
+      "filter_current_tariff": "tariff_11;tariff_12;tariff_13",
+      "target_tariff": "tariff_8",
+      "channel": "push",
+      "planned_contacts": 1001,
+      "planned_cost": 0.0,
+      "estimated_net": 509316.77919227723,
+      "reason": "positive_incremental_net_no_final_overlap",
+      "capped_by_remaining_resources": false
+    },
+    {
+      "campaign_name": "plan_4_push_tariff_11",
+      "filter_arpu_segment": "MID",
+      "filter_current_tariff": "tariff_10;tariff_8",
+      "target_tariff": "tariff_11",
+      "channel": "push",
+      "planned_contacts": 2365,
+      "planned_cost": 0.0,
+      "estimated_net": 232308.28744291424,
+      "reason": "positive_incremental_net_no_final_overlap",
+      "capped_by_remaining_resources": false
+    }
+  ],
+  "rejected": [
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_10",
+      "reason": "insufficient_lift_after_uncertainty_margin",
+      "mean": -0.04648119137772498,
+      "sd": 0.05257088532379447
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_10",
+      "reason": "insufficient_lift_after_uncertainty_margin",
+      "mean": 0.012093795471461995,
+      "sd": 0.03729898413605785
+    },
+    {
+      "current_tariff": "tariff_11",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_12",
+      "reason": "insufficient_lift_after_uncertainty_margin",
+      "mean": 0.00039610868984264606,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_14",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_9",
+      "reason": "insufficient_lift_after_uncertainty_margin",
+      "mean": 0.01998016786174939,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_8",
+      "arpu_segment": "HIGH",
+      "target_tariff": "tariff_11",
+      "reason": "insufficient_lift_after_uncertainty_margin",
+      "mean": 0.003893566479647353,
+      "sd": 0.03729898413605785
+    }
+  ],
+  "warnings": [],
+  "history_scale": 1.0,
+  "estimated_final_net_before_pilot_dedup": 3947005.953459115
+}
