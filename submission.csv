@@ -3,4 +3,3 @@ plan_1_digital_ads_tariff_8,MID,,,tariff_12;tariff_13;tariff_4,tariff_8,digital_
 plan_2_digital_ads_tariff_9,LOW,,,tariff_10;tariff_14;tariff_4;tariff_8,tariff_9,digital_ads
 plan_3_sms_tariff_8,LOW,,,tariff_11;tariff_12;tariff_13,tariff_8,sms
 plan_4_sms_tariff_11,MID,,,tariff_10,tariff_11,sms
-plan_5_push_tariff_12,HIGH,,,tariff_10,tariff_12,push

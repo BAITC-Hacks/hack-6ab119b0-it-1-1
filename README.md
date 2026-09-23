@@ -51,7 +51,7 @@ This branch contains the **minimal submission package**:
 | `agent.py` | Complete policy, including `Agent.act(env)` |
 | `llm_advisor.py` | LLM hypothesis-pilot advisor: prompt, validation, cache, deterministic fallback |
 | `llm_cache.json` | Committed LLM responses pinning the seed-42 replay |
-| `submission.csv` | Five final campaigns generated at seed 42 |
+| `submission.csv` | Four final campaigns generated at seed 42 |
 | `requirements.txt` | Python dependencies |
 | `README.md` | Setup, verification, results, and limitations |
 
@@ -98,20 +98,20 @@ python -X utf8 local_eval.py --runs 10
 python -X utf8 make_submission.py
 ```
 
-Check that evaluation completes, no campaigns are discarded, pilots are used, and resource limits hold. The reported combined campaign count includes pilots: 25 campaigns at seed 42 means 20 pilots plus 5 final campaigns, within the final-plan limit.
+Check that evaluation completes, no campaigns are discarded, pilots are used, and resource limits hold. The reported combined campaign count includes pilots: 24 campaigns at seed 42 means 20 pilots plus 4 final campaigns, within the final-plan limit.
 
 Recorded seed-42 evaluation:
 
 | Metric | Result |
 | --- | ---: |
 | Status | PASS |
-| Net gain | 4,713,687 |
+| Net gain | 4,869,704 |
 | Communication cost | 93,440 / 100,000 |
-| Contacts, including pilots | 12,544 / 15,000 |
+| Contacts, including pilots | 9,594 / 15,000 |
 | Pilots | 20 |
-| Final campaigns | 5 |
+| Final campaigns | 4 |
 
-The fifth campaign was surfaced by an LLM-suggested hypothesis pilot. Three separate generator runs - live with a key, cache-only, and with no key - reproduced the committed CSV byte for byte. Its SHA-256 is `7232c2e58cf3fdbf8862f6969b50159afd508ca91a47c6e93b8586b36d681827`. Line endings can differ across platforms. Hidden-environment campaigns may differ from seed 42 because pilot outcomes and live model advice differ.
+In the recorded run the LLM's suggested pilots confirmed cells the adaptive loop also prioritizes, so the final plan matches the deterministic one - live model advice varies and can also add campaigns. Replay reproducibility (cache answers seed 42 without network) is verified separately from live integration (fresh seeds make real API calls, e.g. seed 999: net 5,144,353 PASS in `llm_live` mode). Generator runs live, cache-only, and keyless reproduced the committed CSV byte for byte. Its SHA-256 is `95bbd022ca3c51f634540c8a2cd23e28d17600ffa04cc9782026a0a329ea96a7`. Line endings can differ across platforms. Hidden-environment campaigns may differ from seed 42 because pilot outcomes and live model advice differ.
 
 ## 8. Data and integrations
 

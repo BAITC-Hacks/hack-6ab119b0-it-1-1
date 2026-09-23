@@ -1,9 +1,9 @@
 {
- "8b3592bdbac8b29af1728d812aac5bfc19eafe7a3840543879a1b34c8ee135bc": {
+ "828ceaf5f5ce0a64c8d0e7cef83a6ad9522fcd92f0021737b6aa7ef6b4f2c1b3": {
   "priority": [
    "tariff_8|MID|tariff_11",
-   "tariff_10|HIGH|tariff_11"
+   "tariff_10|MID|tariff_8"
   ],
-  "rationale": "Pick large, currently unpiloted cells with near-zero history_signal and high customer counts; one more pilot could materially shift the plan by confirming or rejecting upside in major high/MID audiences."
+  "rationale": "Both are large MID segments near the decision boundary with only weak prior signals and no audience-specific evidence; a pilot could materially shift the recommended tariff plan."
  }
 }

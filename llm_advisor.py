@@ -10,9 +10,11 @@ from pathlib import Path
 import hashlib
 import json
 import os
+import time
 
 CACHE_PATH = Path(__file__).resolve().parent / "llm_cache.json"
 TIMEOUT_S = 20
+TOTAL_BUDGET_S = 45  # hard wall-clock ceiling across all attempts
 PROMPT = (
     "You allocate the next pilot experiments for a telecom tariff-change campaign under a "
     "20-pilot budget. Input JSON: candidate cells {id, customers, avg_arpu, history_signal, "
@@ -38,8 +40,10 @@ def _payload(candidates, k, state=None):
 
 def _validate(raw, ids):
     data = json.loads(raw)
+    if not isinstance(data, dict) or not isinstance(data.get("priority"), list):
+        raise ValueError("response must be a JSON object with a priority list")
     order, seen = [], set()
-    for i in data.get("priority", []):
+    for i in data["priority"][:20]:
         if isinstance(i, str) and i in ids and i not in seen:
             seen.add(i)
             order.append(i)
@@ -51,10 +55,16 @@ def _validate(raw, ids):
 def _call_model(payload):
     from openai import OpenAI
 
-    client = OpenAI(timeout=TIMEOUT_S, max_retries=1)  # key from OPENAI_API_KEY env only
-    models = [m for m in (os.environ.get("OPENAI_MODEL"), "gpt-5.4-mini", "gpt-4.1-mini") if m]
+    deadline = time.monotonic() + TOTAL_BUDGET_S
+    models = list(dict.fromkeys(
+        m for m in (os.environ.get("OPENAI_MODEL"), "gpt-5.4-mini", "gpt-4.1-mini") if m))
     last = None
     for model in models[:2]:
+        remaining = deadline - time.monotonic()
+        if remaining <= 1:
+            break
+        # key from OPENAI_API_KEY env only; no SDK retries - the model list is the retry
+        client = OpenAI(timeout=min(TIMEOUT_S, remaining), max_retries=0)
         try:
             resp = client.responses.create(model=model, instructions=PROMPT,
                                            input=json.dumps(payload, sort_keys=True))
@@ -74,7 +84,9 @@ def advise_pilot_order(candidates, k, state=None):
         cells = [{**c, "id": f'{c["current_tariff"]}|{c["arpu_segment"]}|{c["target_tariff"]}'}
                  for c in candidates]
         payload = _payload(cells, int(k), state)
-        key = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+        # Prompt hash in the key: editing the prompt invalidates old cached advice.
+        key = hashlib.sha256((hashlib.sha256(PROMPT.encode()).hexdigest()[:12]
+                              + json.dumps(payload, sort_keys=True)).encode()).hexdigest()
         cache = {}
         try:
             cache = json.loads(CACHE_PATH.read_text())
