@@ -36,9 +36,11 @@ Push pilots have no monetary contact cost, but consume contacts and can reduce r
 
 ## 4. Technology and AI use
 
-The tested environment is **Python 3.13.3, pandas 3.0.6, and NumPy 2.5.3**. Direct dependencies are pinned in `requirements.txt`.
+The package was verified with **Python 3.13.11, pandas 3.0.6, and NumPy 2.5.3**. Direct dependencies are pinned in `requirements.txt`.
 
 The selector needs no network access, API key, or language model at runtime. It makes sequential decisions through the public environment interface. AI coding assistants supported development. The Beeline participant guide describes an LLM in the decision loop as optional; no live LLM integration is claimed here.
+
+The event-wide rules separately require OpenAI API use. This offline package contains no OpenAI API integration and does not by itself demonstrate fulfillment of that requirement.
 
 ## 5. Architecture and repository contents
 
@@ -106,9 +108,7 @@ Recorded seed-42 evaluation:
 | Pilots | 20 |
 | Final campaigns | 4 |
 
-Generation was verified in separate processes and in a clean export of the development commit using a fresh dependency environment. The submitted campaign content reproduced; repeated generation on the same platform was byte-identical. Windows/Linux line endings may differ. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
-
-Development validation included 14 unit tests. The test suite, benchmark harness, and report-generation tools are not included in this minimal submission package.
+The four submission files were checked in a fresh virtual environment with the unchanged organizer package. Two separate generator runs reproduced the committed CSV byte for byte on macOS. Its SHA-256 is `318ff0ec37b05076e0e6fda84888bab69fe9815bdcc0337dad65cdcd2b4f22b1`. Line endings can differ across platforms. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
 
 ## 8. Data and integrations
 
@@ -116,31 +116,29 @@ The profile supplies current tariffs, ARPU and usage segments, and `predicted_ar
 
 The agent does not read `traffic.csv` or `arpu_monthly.csv` directly because derived features are already in the profile. Customer data remains in the participant package and is not published here. No web service, graphical viewer, or OpenAI post-run analyst is included.
 
-## 9. Measured results and evidence
+## 9. Reproducible mock results
 
-The recorded development comparison used seeds **200–219** after selecting the policy. The baseline is the earlier Claude implementation, not the organizer's starter template. Policy constants were unchanged after that evaluation.
+The organizer command `python -X utf8 local_eval.py --runs 10` evaluates seeds **0-9**. The current package produced the following net gains, rounded to whole conventional units:
 
-| Metric | Earlier Claude baseline | Submitted agent |
-| --- | ---: | ---: |
-| Median net gain, 20 runs | 4,513,807 | **4,897,756** |
-| Minimum | **4,131,959** | 3,135,746 |
-| Maximum | 4,708,707 | **5,415,687** |
-| Positive runs | 20/20 | 20/20 |
-| Invalid plans | 0 | 0 |
-| Mean repeated final contacts | 1,280.6 | **0** |
+| Metric | Submitted agent |
+| --- | ---: |
+| Mean net gain | 4,911,306 |
+| Median net gain | 5,115,314 |
+| Minimum | 3,841,132 |
+| Maximum | 5,468,676 |
+| Positive runs | 10/10 |
 
-Median gain increased 8.5%, with wins in 14/20 paired runs, but the worst result deteriorated. A fixed-exploration ablation reached a higher median of 4,955,998, so the improvement cannot be attributed to adaptive exploration alone. Original holdout measurements of `Agent.act` stayed below 0.5 seconds on the development PC; runtime depends on the environment.
-
-Authored stress fixtures also expose limitations: submitted-agent medians were 311,590 with weak effects, −238,783 with reversed historical signals, and 6,625,070 near conversion saturation. The reversed-history fixture lost money in all ten runs. These are diagnostic simulations, not the hidden judging model or real operator revenue.
+Different seeds change pilot randomness; they do not change the mock business-effect model. These results do not establish profit under hidden judging effects.
 
 ## 10. Limitations
 
 - Random seeds of one mock model test pilot noise, not transfer to a different effect model. Profit and leaderboard position are not guaranteed.
-- Candidate search is restricted and allocation is greedy; global optimality is not established.
+- Candidate search keeps at most two target tariffs per audience cell, ranked using history when available. Adaptive follow-up pilots cannot expand beyond the initially explored cells. Allocation is greedy; global optimality is not established.
+- The historical prior closely matches how the supplied mock computes effects. Strong mock results do not establish robustness when history is misleading or current effects change direction.
 - Follow-up choice and early stopping are adaptive. Pilot size is normally 200 and decreases with eligible audience size or remaining contacts, rather than being optimized from observed uncertainty.
 - Uncertainty estimates and risk margins are heuristic, not calibrated confidence guarantees. Historical transitions alone do not identify causal effects.
 - Pilot IDs are hidden. Final campaigns can overlap pilots, and the in-memory projected net does not subtract that overlap or represent the full realized official score.
-- A fallback can lose money. If no evidence-based feasible fallback can be formed, the agent may return an empty plan, which fails the required 1–10 campaign contract. No such invalid plan occurred in the recorded benchmark series.
+- A fallback can lose money. If no evidence-based feasible fallback can be formed, the agent may return an empty plan, which fails the required 1–10 campaign contract. A failed or non-finite first pilot observation can trigger this behavior; automatic retry is not implemented. The ten mock runs above completed with valid final plans.
 - The trace is not a complete reporting API: it has no attached official evaluation, and fallback campaigns are not fully represented in its campaign list.
 
 ## 11. Deployment and submission
