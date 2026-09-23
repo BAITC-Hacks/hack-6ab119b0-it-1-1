@@ -15,6 +15,7 @@ MAX_CAMPAIGNS = 10
 MAX_CUSTOMERS_PER_CAMPAIGN = 5000
 PILOT_SIZE = 200
 FIRST_PASS_CELLS = 16
+MAX_HISTORY_CHALLENGES = 2
 MIN_CELL = 50
 PRIOR_SD = 0.10
 HISTORY_WEIGHT = 1.0
@@ -62,12 +63,16 @@ class Agent:
         self._evidence = {}
         self._history_scale = 1.0
         self._stop_exploration = False
+        self._history_conflict = False
+        self._transfer_slope = 1.0
 
     def act(self, env):
         self._evidence = {}
         self._history_scale = 1.0
         self._stop_exploration = False
-        self.decision_trace = {"policy": "adaptive-pilots/contact-aware-allocation",
+        self._history_conflict = False
+        self._transfer_slope = 1.0
+        self.decision_trace = {"policy": "adaptive-size/online-history/contact-aware-allocation",
             "pilots": [], "estimates": [], "campaigns": [], "rejected": [], "warnings": []}
         try:
             self._profile = env.customer_profile.sort_values("ID_NUMBER").reset_index(drop=True).copy()
@@ -104,12 +109,16 @@ class Agent:
                     continue
                 signal = float(r["arpu_change_pct"] * r["transition_share"] * 0.5)
                 options.append((signal, target))
+            contrary = sorted(options, key=lambda v: (v[0], v[1]))[:2]
             if not options:
                 options = [(0.0, t) for t in known if t != cell["current_tariff"]]
             elif any(signal > 0 for signal, _ in options):
                 options = [(signal, target) for signal, target in options if signal > 0]
             options.sort(key=lambda v: (-v[0], v[1]))
-            for rank, (signal, target) in enumerate(options[:2]):
+            selected = [(rank, signal, target) for rank, (signal, target) in enumerate(options[:2])]
+            selected_targets = {target for _, _, target in selected}
+            selected.extend((2, signal, target) for signal, target in contrary if target not in selected_targets)
+            for rank, signal, target in selected:
                 c = {**cell, "current_tariff": str(cell["current_tariff"]),
                      "arpu_segment": str(cell["arpu_segment"]), "target_tariff": str(target),
                      "prior": signal, "rank": rank}
@@ -141,9 +150,59 @@ class Agent:
         return {k: e[k] for k in ("current_tariff", "arpu_segment", "target_tariff", "prior",
                                   "sample_n", "repeats", "mean", "sd")}
 
+    def _pilot_size(self, candidate):
+        """Choose exposure from observations; pilot profit also enters the score."""
+        if not self.adaptive:
+            return PILOT_SIZE, "fixed_size_ablation"
+        evidence = self._evidence.get(self._key(candidate))
+        if evidence is not None:
+            count = evidence["sample_n"]
+            mean = evidence["weighted_lift"] / count
+            se = PER_CUSTOMER_STD / math.sqrt(count)
+            if mean - se > 0:
+                return PILOT_SIZE, "positive_pilot_has_direct_value"
+            if mean + se < 0:
+                return 50, "limit_negative_exposure"
+            alternatives = [e["weighted_lift"] / e["sample_n"]
+                for key, e in self._evidence.items()
+                if key[:2] == self._key(candidate)[:2] and key != self._key(candidate)]
+            gap = abs(mean - max([0.] + alternatives))
+            # One noise SE of separation is a precision target, not a guarantee.
+            if gap <= PER_CUSTOMER_STD / math.sqrt(count + PILOT_SIZE):
+                return PILOT_SIZE, "resolve_uncertain_decision"
+            required = math.ceil((PER_CUSTOMER_STD / gap) ** 2)
+            additional = 25 * math.ceil(max(0, required - count) / 25)
+            return min(PILOT_SIZE, max(50, additional)), "resolve_uncertain_decision"
+        if self._history_conflict:
+            return 50, "small_challenge_after_history_conflict"
+        pilots = self.decision_trace["pilots"]
+        if len(pilots) >= 3:
+            count = sum(p["n"] for p in pilots)
+            mean = sum(p["n"] * p["observed_lift"] for p in pilots) / count
+            negative_share = sum(p["n"] for p in pilots if p["observed_lift"] < 0) / count
+            if negative_share >= .8 and mean + 2 * PER_CUSTOMER_STD / math.sqrt(count) < 0:
+                return 50, "smaller_screen_after_negative_evidence"
+        return PILOT_SIZE, "initial_or_mixed_evidence"
+
+    def _calibrate_history(self):
+        evidence = list(self._evidence.values())
+        numerator = sum(e["prior"] * e["weighted_lift"] for e in evidence)
+        denominator = sum(e["prior"] ** 2 * e["sample_n"] for e in evidence)
+        slope = numerator / denominator if denominator > 0 else 0.
+        noise_se = PER_CUSTOMER_STD / math.sqrt(denominator) if denominator > 0 else math.inf
+        self._transfer_slope = float(np.clip(slope, -1., 1.))
+        self._history_scale = max(0., self._transfer_slope)
+        # A through-origin fit diagnoses failed transfer, not negative correlation.
+        # Its noise margin ignores effect heterogeneity: this remains a heuristic.
+        cells = {(e["current_tariff"], e["arpu_segment"]) for e in evidence}
+        self._history_conflict = len(cells) >= 3 and slope + 3 * noise_se < 0
+        self.decision_trace.update(history_scale=self._history_scale,
+            transfer_slope=self._transfer_slope, history_conflict=self._history_conflict)
+
     def _pilot(self, env, c, reason):
         # Keep a feasible contact for the required final plan on small fixtures.
-        n = min(PILOT_SIZE, int(c["n"]), max(0, int(env.remaining_contacts) - 1))
+        requested_n, size_reason = self._pilot_size(c)
+        n = min(requested_n, int(c["n"]), max(0, int(env.remaining_contacts) - 1))
         if self._stop_exploration or env.pilots_left <= 0 or n < 10:
             return False
         try:
@@ -162,19 +221,29 @@ class Agent:
         e["sample_n"] += actual_n
         e["weighted_lift"] += actual_n * observed
         e["repeats"] += 1
+        self._calibrate_history()
         est = self._estimate(e)
         self.decision_trace["pilots"].append({"current_tariff": c["current_tariff"],
             "arpu_segment": c["arpu_segment"], "target_tariff": c["target_tariff"],
             "n": actual_n, "observed_lift": observed, "posterior_mean": est["mean"],
-            "posterior_sd": est["sd"], "reason": reason})
+            "posterior_sd": est["sd"], "reason": reason,
+            "requested_n": requested_n, "sample_size_reason": size_reason,
+            "history_scale": self._history_scale, "history_conflict": self._history_conflict})
         pilots = self.decision_trace["pilots"]
         if self.adaptive and len(pilots) >= 6:
             total_n = sum(p["n"] for p in pilots)
             average = sum(p["n"] * p["observed_lift"] for p in pilots) / total_n
-            negative_share = sum(p["observed_lift"] < 0 for p in pilots) / len(pilots)
+            negative_share = sum(p["n"] for p in pilots if p["observed_lift"] < 0) / total_n
             if negative_share >= .8 and average < -2 * PER_CUSTOMER_STD / math.sqrt(total_n):
                 self._stop_exploration = True
-                self.decision_trace["warnings"].append("stopped_exploration_after_widespread_negative_pilots")
+                warning = ("bounded_history_challenges_after_negative_pilots" if self._history_conflict
+                           else "stopped_exploration_after_widespread_negative_pilots")
+                if warning not in self.decision_trace["warnings"]:
+                    self.decision_trace["warnings"].append(warning)
+        # The exploration loop permits only a bounded set of contrary probes
+        # without a pilot-supported profitable alternative.
+        if self.adaptive and self._history_conflict:
+            self._stop_exploration = False
         return True
 
     def _explore(self, env, candidates):
@@ -183,11 +252,10 @@ class Agent:
         for c in first[:first_count]:
             if not self._pilot(env, c, "initial_coverage"):
                 break
+            if self.adaptive and self._history_conflict:
+                break
         # Calibrate historical strength using current-audience observations only.
-        numerator = sum(e["prior"] * e["weighted_lift"] for e in self._evidence.values())
-        denominator = sum(e["prior"] ** 2 * e["sample_n"] for e in self._evidence.values())
-        self._history_scale = float(np.clip(numerator / denominator, 0., 1.)) if denominator > 0 else 0.
-        self.decision_trace["history_scale"] = self._history_scale
+        self._calibrate_history()
         if not self.adaptive:
             for c in [c for c in candidates if c["rank"] == 1] + first[first_count:]:
                 if not self._pilot(env, c, "fixed_second_pass"):
@@ -197,28 +265,42 @@ class Agent:
         # to the best alternative or to the no-contact boundary get priority.
         while not self._stop_exploration and env.pilots_left > 0 and env.remaining_contacts >= 10:
             ests = {key: self._estimate(e) for key, e in self._evidence.items()}
+            challenges = sum(p["reason"] == "challenge_history" for p in self.decision_trace["pilots"])
+            supported = any(e["repeats"] >= 2 and e["mean"] > self._risk_margin() * e["sd"]
+                            for e in ests.values())
             options = []
             for c in candidates:
                 key = self._key(c)
                 e = ests.get(key)
                 alternatives = [v["mean"] for k, v in ests.items() if k[:2] == key[:2] and k != key]
                 best_other = max([0.] + alternatives)
+                next_n = min(self._pilot_size(c)[0], int(c["n"]), max(0, int(env.remaining_contacts) - 1))
+                if next_n < 10:
+                    continue
                 if e is None:
-                    if not alternatives:
+                    if self._history_conflict:
+                        if challenges >= MAX_HISTORY_CHALLENGES and not supported:
+                            continue
+                        # Reverse order only proposes an experiment. The final
+                        # estimate never uses an inverted historical prior.
+                        mean, sd = self._transfer_slope * c["prior"], PRIOR_SD
+                    elif c["rank"] < 2 and alternatives:
+                        mean, sd = self.history_weight * self._history_scale * c["prior"], PRIOR_SD
+                    else:
                         continue
-                    mean, sd = self.history_weight * self._history_scale * c["prior"], PRIOR_SD
                     priority = max(0., mean + sd - best_other)
-                    reason = "test_alternative" if alternatives else "expand_coverage"
+                    reason = "challenge_history" if self._history_conflict else "test_alternative"
                 else:
                     if e["repeats"] >= 3:
                         continue
                     mean, sd = e["mean"], e["sd"]
+                    if self._history_conflict and challenges >= MAX_HISTORY_CHALLENGES and not supported and mean <= 0:
+                        continue
                     uncertainty = math.exp(-0.5 * ((mean - best_other) / max(sd, 1e-9)) ** 2)
                     # Large, unexpectedly good pilot results can be selection
                     # noise. Confirm these before exposing a valuable audience.
                     surprise = min(1., max(0., (mean - self._history_scale * c["prior"]) / max(sd, 1e-9) - 1.))
                     uncertainty = max(uncertainty, surprise)
-                    next_n = min(PILOT_SIZE, int(c["n"]))
                     next_sd = math.sqrt(1 / (1 / sd ** 2 + next_n / PER_CUSTOMER_STD ** 2))
                     priority = (sd - next_sd) * uncertainty
                     # Confirmation gate: a surprising, positive estimate below
@@ -228,7 +310,10 @@ class Agent:
                         priority = max(priority, mean)
                     reason = "confirm_surprising_winner" if surprise > 0 else "confirm_uncertain_choice"
                 priority *= float(c["arpu"]) * min(int(c["n"]), int(env.remaining_contacts), 5000)
-                priority /= min(PILOT_SIZE, int(c["n"]))
+                # A small pilot still consumes one of only 20 experiment slots.
+                # Price both resources instead of rewarding tiny noisy repeats.
+                slot_contacts = env.remaining_contacts / max(env.pilots_left, 1)
+                priority /= next_n + slot_contacts
                 options.append((priority, key, c, reason))
             if not options:
                 break
