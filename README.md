@@ -11,7 +11,7 @@ All case data and reported financial outcomes are synthetic. Results do not desc
 ## 2. Implemented solution
 
 - Historical transitions generate hypotheses; their frequencies are not treated as the audience's true conversion probabilities.
-- Up to 16 initial push pilots cover promising cells. Remaining pilots test alternatives or repeat uncertain and unexpectedly strong results.
+- Up to 12 initial push pilots cover promising cells. The remaining pilot budget goes to an adaptive follow-up loop that tests alternatives and repeats uncertain or unexpectedly strong results, plus up to 2 LLM-suggested hypothesis pilots.
 - Estimates combine historical signals and pilot observations. Contradictory evidence reduces reliance on history; widespread negative observations stop further exploration.
 - Audience and channel selection jointly account for budget, contacts, campaign slots, customer ordering, and conversion saturation. Final campaigns do not contact the same customer twice.
 - A fallback retains the tested audience filters and reduces exposure when positive effects are uncertain.
@@ -27,7 +27,7 @@ The case allows at most **20 pilots**, normally **10–200 contacts per pilot**,
 
 Python, pandas, and NumPy. The recorded validation environment was **Python 3.13.3, pandas 3.0.6, NumPy 2.5.3**; install the versions specified in `requirements.txt`.
 
-The judged selector requires no external API, API key, or LLM call. It makes sequential decisions through the environment's public API. AI coding assistants supported development; there is no runtime language model dependency. Any future LLM explanation layer would be optional and separate from selection.
+An OpenAI model participates in the decision loop (`llm_advisor.py`): after the deterministic first-pass pilots, it receives the candidate cells with their live pilot evidence (posterior mean/sd/n) and resource state, and proposes up to 2 additional hypothesis pilots from the adaptive reserve. Its suggestions then compete on measured pilot evidence like any other cell; it never edits the final campaign list directly. Safety per the case rules: the key comes only from `os.environ["OPENAI_API_KEY"]`, every call is wrapped in try/except with a 20-second timeout, and any error, missing key, or invalid response falls back to the fully deterministic policy - a model outage cannot invalidate the plan. A committed `llm_cache.json`, keyed by the exact request payload (model-independent), makes the seed-42 `make_submission.py` replay byte-reproducible with or without a key; on the judging environment's different effects the cache misses and the model is consulted live. Total agent runtime stays a few seconds against the 10-minute limit.
 
 ## 5. Architecture
 

@@ -188,6 +188,34 @@ class Agent:
         denominator = sum(e["prior"] ** 2 * e["sample_n"] for e in self._evidence.values())
         self._history_scale = float(np.clip(numerator / denominator, 0., 1.)) if denominator > 0 else 0.
         self.decision_trace["history_scale"] = self._history_scale
+        if self.adaptive:
+            # LLM in the decision loop: up to 2 hypothesis pilots from the adaptive
+            # reserve; suggestions then compete on measured evidence like any cell.
+            # Cache/fallback in llm_advisor keep the run deterministic and crash-proof.
+            try:
+                import llm_advisor
+                pool = []
+                for c in candidates:
+                    e = self._evidence.get(self._key(c))
+                    ev = None
+                    if e:
+                        est = self._estimate(e)
+                        ev = {"mean": round(est["mean"], 4), "sd": round(est["sd"], 4),
+                              "n": int(e["sample_n"])}
+                    pool.append({**c, "evidence": ev})
+                state = {"pilots_left": int(env.pilots_left),
+                         "remaining_contacts": int(env.remaining_contacts),
+                         "remaining_budget": round(float(env.remaining_budget), 2)}
+                advice = llm_advisor.advise_pilot_order(pool, 2, state)
+                self.decision_trace["llm"] = {"mode": advice["mode"], "rationale": advice["rationale"]}
+                if advice["order"]:
+                    by_id = {f'{c["current_tariff"]}|{c["arpu_segment"]}|{c["target_tariff"]}': c
+                             for c in pool}
+                    for cid in advice["order"][:2]:
+                        if cid in by_id and env.pilots_left > 0:
+                            self._pilot(env, by_id[cid], "llm_suggested_hypothesis")
+            except Exception as exc:
+                self.decision_trace["llm"] = {"mode": f"fallback_import:{type(exc).__name__}", "rationale": ""}
         if not self.adaptive:
             for c in [c for c in candidates if c["rank"] == 1] + first[first_count:]:
                 if not self._pilot(env, c, "fixed_second_pass"):
