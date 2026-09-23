@@ -123,81 +123,81 @@
     },
     {
       "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_10",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
       "n": 200,
-      "observed_lift": 0.00037717016721161307,
-      "posterior_mean": 0.0010704699001546493,
+      "observed_lift": 0.012806189896813803,
+      "posterior_mean": 0.013477467499890513,
       "posterior_sd": 0.0494227596767711,
-      "reason": "initial_coverage"
+      "reason": "test_alternative"
     },
     {
-      "current_tariff": "tariff_11",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_12",
-      "n": 200,
-      "observed_lift": -0.0021709957404087692,
-      "posterior_mean": 0.00039610868984264606,
-      "posterior_sd": 0.0494227596767711,
-      "reason": "initial_coverage"
-    },
-    {
-      "current_tariff": "tariff_11",
+      "current_tariff": "tariff_10",
       "arpu_segment": "MID",
       "target_tariff": "tariff_8",
       "n": 200,
-      "observed_lift": 0.11745064461311044,
-      "posterior_mean": 0.10230368958973435,
-      "posterior_sd": 0.05027630439603994,
-      "reason": "initial_coverage"
-    },
-    {
-      "current_tariff": "tariff_14",
-      "arpu_segment": "MID",
-      "target_tariff": "tariff_9",
-      "n": 200,
-      "observed_lift": 0.017834283159122215,
-      "posterior_mean": 0.01998016786174939,
-      "posterior_sd": 0.0494227596767711,
-      "reason": "initial_coverage"
-    },
-    {
-      "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_11",
-      "n": 200,
-      "observed_lift": -0.01805127978929249,
-      "posterior_mean": -0.013161352060562707,
+      "observed_lift": 0.031179894118370813,
+      "posterior_mean": 0.03368831399601098,
       "posterior_sd": 0.0494227596767711,
       "reason": "test_alternative"
     },
     {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "n": 200,
+      "observed_lift": 0.07973147534774629,
+      "posterior_mean": 0.06458004881977232,
+      "posterior_sd": 0.050280173908406965,
+      "reason": "test_alternative"
+    },
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "n": 200,
+      "observed_lift": 0.0014430916598272212,
+      "posterior_mean": 0.03635549900210547,
+      "posterior_sd": 0.03729898413605785,
+      "reason": "confirm_surprising_winner"
+    },
+    {
       "current_tariff": "tariff_8",
       "arpu_segment": "MID",
       "target_tariff": "tariff_11",
       "n": 200,
-      "observed_lift": 0.0459070616514535,
-      "posterior_mean": 0.038515112082643826,
-      "posterior_sd": 0.0494227596767711,
-      "reason": "test_alternative"
-    },
-    {
-      "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_10",
-      "n": 200,
-      "observed_lift": 0.026679948054020453,
-      "posterior_mean": 0.012093795471461995,
+      "observed_lift": -0.0043747330291316715,
+      "posterior_mean": 0.005793178994934354,
       "posterior_sd": 0.03729898413605785,
       "reason": "confirm_uncertain_choice"
     },
     {
       "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_11",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_10",
       "n": 200,
-      "observed_lift": 0.02646077113140163,
-      "posterior_mean": 0.003893566479647353,
+      "observed_lift": 0.07862636516747198,
+      "posterior_mean": 0.013607332029424326,
+      "posterior_sd": 0.03729898413605785,
+      "reason": "confirm_uncertain_choice"
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_4",
+      "n": 200,
+      "observed_lift": 0.06944824907990646,
+      "posterior_mean": 0.06365207877543717,
+      "posterior_sd": 0.0494227596767711,
+      "reason": "test_alternative"
+    },
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "n": 200,
+      "observed_lift": 0.14461085496320256,
+      "posterior_mean": 0.1051149072333053,
       "posterior_sd": 0.03729898413605785,
       "reason": "confirm_uncertain_choice"
     }
@@ -208,10 +208,10 @@
       "arpu_segment": "MID",
       "target_tariff": "tariff_8",
       "prior": 0.12011808416576368,
-      "sample_n": 200,
-      "repeats": 1,
-      "mean": 0.07515324834127168,
-      "sd": 0.049578533948284466
+      "sample_n": 400,
+      "repeats": 2,
+      "mean": 0.1051149072333053,
+      "sd": 0.03729898413605785
     },
     {
       "current_tariff": "tariff_13",
@@ -220,7 +220,7 @@
       "prior": 0.12820215307357918,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.16044514889294065,
+      "mean": 0.16026468445078434,
       "sd": 0.0494227596767711
     },
     {
@@ -228,10 +228,10 @@
       "arpu_segment": "MID",
       "target_tariff": "tariff_10",
       "prior": 0.04836385061014201,
-      "sample_n": 200,
-      "repeats": 1,
-      "mean": -0.04648119137772498,
-      "sd": 0.05257088532379447
+      "sample_n": 400,
+      "repeats": 2,
+      "mean": 0.013607332029424326,
+      "sd": 0.03729898413605785
     },
     {
       "current_tariff": "tariff_8",
@@ -240,8 +240,8 @@
       "prior": 0.24151548834236602,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.18294115791292587,
-      "sd": 0.050569512120113964
+      "mean": 0.18285322768749893,
+      "sd": 0.05048027434697544
     },
     {
       "current_tariff": "tariff_13",
@@ -250,7 +250,7 @@
       "prior": 0.2870035697228074,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.2734162656585097,
+      "mean": 0.2730122635581927,
       "sd": 0.0494227596767711
     },
     {
@@ -260,7 +260,7 @@
       "prior": 0.13877891893539643,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.13805706033326698,
+      "mean": 0.13786170745043078,
       "sd": 0.0494227596767711
     },
     {
@@ -270,7 +270,7 @@
       "prior": 0.20913347164935306,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.24691664180818879,
+      "mean": 0.24662225396529702,
       "sd": 0.0494227596767711
     },
     {
@@ -280,7 +280,7 @@
       "prior": 0.2424417508107508,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.2758594364144345,
+      "mean": 0.27551816199535084,
       "sd": 0.0494227596767711
     },
     {
@@ -290,8 +290,8 @@
       "prior": 0.14164184803246696,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.19104430432259303,
-      "sd": 0.049915608365157765
+      "mean": 0.1909674456535701,
+      "sd": 0.04997053011786145
     },
     {
       "current_tariff": "tariff_12",
@@ -300,7 +300,7 @@
       "prior": 0.14602113891144,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.16610759070467923,
+      "mean": 0.16590204327240204,
       "sd": 0.0494227596767711
     },
     {
@@ -310,7 +310,7 @@
       "prior": 0.04933162324355573,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.0651749319836815,
+      "mean": 0.06510549006202981,
       "sd": 0.0494227596767711
     },
     {
@@ -320,67 +320,47 @@
       "prior": 0.12937079740301627,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.08817258509746681,
+      "mean": 0.08799047560690894,
       "sd": 0.0494227596767711
-    },
-    {
-      "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_10",
-      "prior": 0.003215527364521362,
-      "sample_n": 400,
-      "repeats": 2,
-      "mean": 0.012093795471461995,
-      "sd": 0.03729898413605785
-    },
-    {
-      "current_tariff": "tariff_11",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_12",
-      "prior": 0.008338685699852966,
-      "sample_n": 200,
-      "repeats": 1,
-      "mean": 0.00039610868984264606,
-      "sd": 0.0494227596767711
-    },
-    {
-      "current_tariff": "tariff_11",
-      "arpu_segment": "MID",
-      "target_tariff": "tariff_8",
-      "prior": 0.04794747603618461,
-      "sample_n": 200,
-      "repeats": 1,
-      "mean": 0.10230368958973435,
-      "sd": 0.05027630439603994
-    },
-    {
-      "current_tariff": "tariff_14",
-      "arpu_segment": "MID",
-      "target_tariff": "tariff_9",
-      "prior": 0.026619498270115456,
-      "sample_n": 200,
-      "repeats": 1,
-      "mean": 0.01998016786174939,
-      "sd": 0.0494227596767711
-    },
-    {
-      "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_11",
-      "prior": 0.0019680003339627343,
-      "sample_n": 400,
-      "repeats": 2,
-      "mean": 0.003893566479647353,
-      "sd": 0.03729898413605785
     },
     {
       "current_tariff": "tariff_8",
       "arpu_segment": "MID",
       "target_tariff": "tariff_11",
       "prior": 0.01564454709412355,
+      "sample_n": 400,
+      "repeats": 2,
+      "mean": 0.005793178994934354,
+      "sd": 0.03729898413605785
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_8",
+      "prior": 0.041689575558632556,
       "sample_n": 200,
       "repeats": 1,
-      "mean": 0.038515112082643826,
+      "mean": 0.03368831399601098,
+      "sd": 0.0494227596767711
+    },
+    {
+      "current_tariff": "tariff_4",
+      "arpu_segment": "MID",
+      "target_tariff": "tariff_11",
+      "prior": 0.010228306770820463,
+      "sample_n": 400,
+      "repeats": 2,
+      "mean": 0.03635549900210547,
+      "sd": 0.03729898413605785
+    },
+    {
+      "current_tariff": "tariff_10",
+      "arpu_segment": "LOW",
+      "target_tariff": "tariff_4",
+      "prior": 0.04598382839040737,
+      "sample_n": 200,
+      "repeats": 1,
+      "mean": 0.06365207877543717,
       "sd": 0.0494227596767711
     }
   ],
@@ -388,12 +368,12 @@
     {
       "campaign_name": "plan_1_digital_ads_tariff_8",
       "filter_arpu_segment": "MID",
-      "filter_current_tariff": "tariff_11;tariff_12;tariff_13;tariff_4",
+      "filter_current_tariff": "tariff_12;tariff_13;tariff_4",
       "target_tariff": "tariff_8",
       "channel": "digital_ads",
-      "planned_contacts": 3055,
-      "planned_cost": 67210.0,
-      "estimated_net": 2146442.645215534,
+      "planned_contacts": 2591,
+      "planned_cost": 57002.0,
+      "estimated_net": 2237679.022882854,
       "reason": "positive_incremental_net_no_final_overlap",
       "capped_by_remaining_resources": false
     },
@@ -405,31 +385,31 @@
       "channel": "digital_ads",
       "planned_contacts": 1357,
       "planned_cost": 29854.0,
-      "estimated_net": 1058938.241608389,
+      "estimated_net": 1055808.0448832896,
       "reason": "positive_incremental_net_no_final_overlap",
       "capped_by_remaining_resources": false
     },
     {
-      "campaign_name": "plan_3_push_tariff_8",
+      "campaign_name": "plan_3_sms_tariff_8",
       "filter_arpu_segment": "LOW",
       "filter_current_tariff": "tariff_11;tariff_12;tariff_13",
       "target_tariff": "tariff_8",
-      "channel": "push",
+      "channel": "sms",
       "planned_contacts": 1001,
-      "planned_cost": 0.0,
-      "estimated_net": 509316.77919227723,
+      "planned_cost": 4004.0,
+      "estimated_net": 656237.3500117919,
       "reason": "positive_incremental_net_no_final_overlap",
       "capped_by_remaining_resources": false
     },
     {
-      "campaign_name": "plan_4_push_tariff_11",
+      "campaign_name": "plan_4_sms_tariff_11",
+      "filter_current_tariff": "tariff_10",
       "filter_arpu_segment": "MID",
-      "filter_current_tariff": "tariff_10;tariff_8",
       "target_tariff": "tariff_11",
-      "channel": "push",
-      "planned_contacts": 2365,
-      "planned_cost": 0.0,
-      "estimated_net": 232308.28744291424,
+      "channel": "sms",
+      "planned_contacts": 645,
+      "planned_cost": 2580.0,
+      "estimated_net": 154039.16818142397,
       "reason": "positive_incremental_net_no_final_overlap",
       "capped_by_remaining_resources": false
     }
@@ -440,43 +420,19 @@
       "arpu_segment": "MID",
       "target_tariff": "tariff_10",
       "reason": "insufficient_lift_after_uncertainty_margin",
-      "mean": -0.04648119137772498,
-      "sd": 0.05257088532379447
-    },
-    {
-      "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_10",
-      "reason": "insufficient_lift_after_uncertainty_margin",
-      "mean": 0.012093795471461995,
+      "mean": 0.013607332029424326,
       "sd": 0.03729898413605785
     },
     {
-      "current_tariff": "tariff_11",
-      "arpu_segment": "HIGH",
-      "target_tariff": "tariff_12",
-      "reason": "insufficient_lift_after_uncertainty_margin",
-      "mean": 0.00039610868984264606,
-      "sd": 0.0494227596767711
-    },
-    {
-      "current_tariff": "tariff_14",
-      "arpu_segment": "MID",
-      "target_tariff": "tariff_9",
-      "reason": "insufficient_lift_after_uncertainty_margin",
-      "mean": 0.01998016786174939,
-      "sd": 0.0494227596767711
-    },
-    {
       "current_tariff": "tariff_8",
-      "arpu_segment": "HIGH",
+      "arpu_segment": "MID",
       "target_tariff": "tariff_11",
       "reason": "insufficient_lift_after_uncertainty_margin",
-      "mean": 0.003893566479647353,
+      "mean": 0.005793178994934354,
       "sd": 0.03729898413605785
     }
   ],
   "warnings": [],
-  "history_scale": 1.0,
-  "estimated_final_net_before_pilot_dedup": 3947005.953459115
+  "history_scale": 0.9942370833211898,
+  "estimated_final_net_before_pilot_dedup": 4103763.58595936
 }

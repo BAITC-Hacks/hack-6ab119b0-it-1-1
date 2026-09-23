@@ -11,7 +11,7 @@ All case data and reported financial outcomes are synthetic. Results do not desc
 ## 2. Implemented solution
 
 - Historical transitions generate hypotheses; their frequencies are not treated as the audience's true conversion probabilities.
-- Up to 16 initial push pilots cover promising cells. Remaining pilots test alternatives or repeat uncertain and unexpectedly strong results.
+- Up to 12 initial push pilots cover promising cells; the remaining pilot budget goes to the adaptive follow-up loop. Remaining pilots test alternatives or repeat uncertain and unexpectedly strong results.
 - Estimates combine historical signals and pilot observations. Contradictory evidence reduces reliance on history; widespread negative observations stop further exploration.
 - Audience and channel selection jointly account for budget, contacts, campaign slots, customer ordering, and conversion saturation. Final campaigns do not contact the same customer twice.
 - A fallback retains the tested audience filters and reduces exposure when positive effects are uncertain.
