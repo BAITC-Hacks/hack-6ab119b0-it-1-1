@@ -53,7 +53,7 @@ This branch contains the **minimal submission package**:
 
 Inside `agent.py`, `build_prior` prepares history; `_candidates` proposes targets; `_explore` runs pilots; `_estimate` aggregates evidence; `_offers` and `_allocate` compare feasible plans; `_fallback` handles cases without a suitable regular plan.
 
-The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The policy and dependency pins were adopted unchanged from [Adil Rakhaliyev's development snapshot, commit 41f934a](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/tree/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4).
+The agent uses public environment fields and `run_pilot`. It does not import the evaluator or inspect hidden effects. The policy and dependency pins were adopted unchanged from Adil Rakhaliyev's implementation.
 
 ## 6. Installation and execution
 
@@ -108,7 +108,7 @@ Recorded seed-42 evaluation:
 
 Generation was verified in separate processes and in a clean export of the development commit using a fresh dependency environment. The submitted campaign content reproduced; repeated generation on the same platform was byte-identical. Windows/Linux line endings may differ. Hidden-environment campaigns may differ from seed 42 because pilot outcomes differ.
 
-The development snapshot also contains [14 unit tests](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/tests/test_agent.py), the benchmark harness, and report-generation tools. **Those files are not included in this minimal branch**; their commands require that separate snapshot and the organizer data.
+Development validation included 14 unit tests. The test suite, benchmark harness, and report-generation tools are not included in this minimal submission package.
 
 ## 8. Data and integrations
 
@@ -132,8 +132,6 @@ The recorded development comparison used seeds **200–219** after selecting the
 Median gain increased 8.5%, with wins in 14/20 paired runs, but the worst result deteriorated. A fixed-exploration ablation reached a higher median of 4,955,998, so the improvement cannot be attributed to adaptive exploration alone. Original holdout measurements of `Agent.act` stayed below 0.5 seconds on the development PC; runtime depends on the environment.
 
 Authored stress fixtures also expose limitations: submitted-agent medians were 311,590 with weak effects, −238,783 with reversed historical signals, and 6,625,070 near conversion saturation. The reversed-history fixture lost money in all ten runs. These are diagnostic simulations, not the hidden judging model or real operator revenue.
-
-Evidence is available in the separate pinned development snapshot: [holdout results](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/reports/benchmark_holdout.json), [stress results](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/reports/benchmark_stress.json), [baseline](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/tree/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/tests/baselines), and [change notes](https://github.com/BAITC-Hacks/hack-6ab119b0-it-1-1/blob/41f934ad122fb180e08cf3dc7ae6ffc9c25a3fb4/docs/IMPROVEMENTS.md).
 
 ## 10. Limitations
 
